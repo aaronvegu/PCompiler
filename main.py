@@ -195,7 +195,7 @@ def imprime():
     # avanzamos
     token, lexema = scanner()
 
-def imprimeln():
+def imprimenl():
     global token, lexema
     # Verificamos que se haya abierto parentesis
     if lexema != '(': throwErr('Error de sintaxis', 'Se esperaba ( y llego' + lexema)
@@ -367,9 +367,9 @@ def expressionGroup():
 def statement():
     global token, lexema
     # Dependiendo la palabra que recibamos, pasamos al sintactico de ese comando
-    if lexema == 'leer': leer()
+    if lexema == 'lee': leer()
     elif lexema == 'imprime': imprime()
-    elif lexema == 'imprimeln': imprimeln()
+    elif lexema == 'imprimenl': imprimenl()
     elif lexema == 'desde': desde()
     elif lexema == 'mientras': mientras()
     elif lexema == 'si': si()
@@ -378,6 +378,7 @@ def statement():
     elif lexema == 'regresa': regresa()
     # Si no es ningun comando, enviar error
     else: throwErr('Error de Sintaxis', lexema + ' NO es un comando definido en el lenguaje')
+    token, lexema = scanner()
 
 # Analizador sintactico del grupo de comandos
 def blockStatement():
