@@ -231,22 +231,26 @@ def regresa(): pass
 # Termino evalua parentesis
 def termino():
     global token, lexema
-    if lexema == '(': # Se espera () o un identificador
+    # Se espera () o un identificador
+    if lexema != '(' and token not in constTokens and token != 'Ide':
+        token, lexema = scanner()
+    if lexema == '(':
         token, lexema = scanner()
         expr()
         if lexema != ')':
             throwErr('Error de Sintaxis', 'Se esperaba ) y llego ' + lexema)
-    elif token == 'Ident': # Si llega un identificador
+    elif token == 'Ide': # Si llega un identificador
         token, lexema = scanner()
         if lexema == '[':
             token, lexema = scanner()
             expr()
             if lexema != ']':
                 throwErr('Error de Sintaxis', 'Se esperaba cerrar ] y llego ' + lexema)
-    else:
+    # elif token == 'CtL' or token == 'CtA' or token == 'Dec' or token == 'Ent':
+    elif token in constTokens:
         const()
-    
-    token, lexema = scanner()
+    if lexema != ')':
+        token, lexema = scanner()
 
 # Regla de Negacion unitaria: manda a llamar a la ultima regla de termino
 def signo():
@@ -258,8 +262,8 @@ def signo():
 # Regla de Operador de potencia: manda a llamar a regla de signo
 def exPo():
     global token, lexema
-    opr = '*' # obligamos que entre al while
-    while opr == '*' or opr == '/' or opr == '%':
+    opr = '^' # obligamos que entre al while
+    while opr == '^':
         signo() # Multiplicativo manda a llamar a signo o negacion unitaria
         opr = lexema
 
@@ -315,7 +319,7 @@ def const():
     if not(token in constTokens):
         throwErr('Error de Sintaxis', 'Se esperaba Cte y llego ' + lexema)
 
-
+## POR IMPLEMENTAR
 # Analizador sintactico de constantes y variables
 def constVars():
     global inp, idx, token, lexema
@@ -340,6 +344,7 @@ def dims():
     # avanzamos
     token, lexema = scanner()
 
+## POR IMPLEMENTAR
 # Analizador sintactico de parametros de funcion
 def params():
     global inp, token, lexema
@@ -352,6 +357,7 @@ def expressionGroup():
     if lexema != ')':
         delim = ','
         while delim == ',':
+            if lexema == ',': token, lexema = scanner()
             expr()
             delim = lexema
             #if delim == ',':
@@ -388,16 +394,16 @@ def blockStatement():
 # Analizador sintactico del grupo de instrucciones de la funcion
 def instructions():
     global token, lexema
-    # Siempre debe haber un punto y coma para terminar comandos
-    while lexema != ';':
+    cbk = '{'
+    while cbk != '}':
         # Si no tenemos punto y coma, leemos comando
         if lexema != ';': statement()
-        # Siempre debe haber un ; despues de un comando, y avanzamos
-        token, lexema = scanner()
         # Si no hay ;, aventamos error
         if lexema != ';': throwErr('Error de Sintaxis', 'Se esperaba ; y llego ' + lexema)
-        # de no haber error, avanzamos
+        # Siempre debe haber un ; despues de un comando, y avanzamos
         token, lexema = scanner()
+        # de no haber error, avanzamos
+        cbk = lexema
 
 # Analizador sintactico del bloque de instrucciones de funcion
 def functBlock():
@@ -411,6 +417,7 @@ def functBlock():
     # debemos recibir cerradura de la funcion
     if lexema != '}': throwErr('Error de Sintaxis', 'Se esperaba llave de cerradura \"}\"')
 
+### DEPRECATED ??
 # Encabezado de function y variable, analiza si se trata de la def de una var/const o una funcion
 def VarFuncHeader():
     global inp, idx, token, lexema, constantFlag, mainFlag
@@ -427,7 +434,7 @@ def VarFuncHeader():
     # Avanzamos en scanner (leemos)
     token, lexema = scanner()
     # Si el siguiente token no es un Identificador
-    if token != 'Ident':
+    if token != 'Ide':
         throwErr('Error de Sintaxis', 'Se esperaba Nombre Funcion y llego ' + lexema)
     # Si llega una funcion Main o Principal, solo puede haber una main definida
     if mainFlag: throwErr('Error de Semantica', 'La funcion Principal ya esta definida')
@@ -444,33 +451,45 @@ def VarFuncHeader():
 def functions():
     global inp, idx, token, lexema, types, mainFlag
 
-    print('Programa entra a Functions')    
+    #print('Programa entra a Functions')    
 
+    # Si lexema no esta en los tipos del lenguaje, lanzar error
+    if not lexema in types:
+        throwErr('Error sintactico', 'Se esperaba tipo ' + str(types))
+    # Avanzamos en scanner (leemos)
+    token, lexema = scanner()
+    # Si el siguiente token no es un Identificador
+    if token != 'Ide': throwErr('Error de Sintaxis', 'Se esperaba Nombre Funcion y llego ' + lexema)
+    # Si llega una funcion Main o Principal, solo puede haber una main definida
+    if mainFlag: throwErr('Error de Semantica', 'La funcion Principal ya esta definida')
+    # Aqui captamos la funcion principal
+    if lexema == 'principal': mainFlag = True
     # avanzamos
     token, lexema = scanner()
-    # Si no se cierra parentesis, leemos parametros
-    if lexema != ')':
-        params()
-    # esperamos cerradura de parentesis para argumentos de la funcion
-    if lexema != ')': throwErr('Error de Sintaxis', 'Se esperaba parentesis de cerradura \")\"')
+    # evaluamos apertura de parentesis
+    if lexema != "(": throwErr('Error de Sintaxis', 'Se esperaba \"(\" y llego ' + lexema)
+    # avanzamos
+    token, lexema = scanner()
+    # leemos parametros
+    if lexema != ')': params()
+    # evaluamos cerradura de parentesis
+    if lexema != ')': throwErr('Error de Sintaxis', 'Se esperaba \")\" y llego ' + lexema)
     # avanzamos
     token, lexema = scanner()
     # esperamos el bloque de instrucciones de la funcion
     functBlock()
 
-
-
 # Analizador sintantico de la estructura principal del programa
 def prgm():
     while len(inp) > 0 and idx < len(inp):
-        VarFuncHeader() # Para saber si es una constante/variable o funcion
+        constVars()
+        functions() # Para saber si es una constante/variable o funcion
 
 # Analizador sintactico principal (Parser)
 def parser():
     global inp, idx, token, lexema
     prgm()
 
-    
 # main
 if __name__ == '__main__':
     # Pedimos archivo de entrada a procesar
@@ -485,6 +504,7 @@ if __name__ == '__main__':
     for linea in archivo:
         inp += linea
 
+    # Imprimos entrada de archivo
     print(inp)
     # Llamamos a nuestro analizador sintactico general
     parser()
