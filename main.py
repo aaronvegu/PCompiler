@@ -59,6 +59,105 @@ univDelimit = [' ', '\t', '\n']
 # la entrada por el momento sera una cadena vacia
 inp = ''
 
+## ##
+# INICIO Analizadores Semanticos
+## ##
+
+linCod = 1
+
+# Conversiones de Tipos permitidas (Semantica)
+convTypes = [
+    "E=E", "A=A", "R=R", "L=L", "R=E",
+    "E+E", "E+R", "R+E", "R+R", "A+A",
+    "E-E", "E-R", "R-E", "R-R",
+    "E*E", "E*R", "R*E", "R*R",
+    "E/E", "E/R", "R/E", "R/R",
+    "E\37E", "-E", "-R",
+    "LyL", "LoL", "noL",
+    "E>E", "R>E", "E>R", "R>R",
+    "E<E", "R<E", "E<R", "R<R",
+    "E>=E", "R>=E", "E>=R", "R>=R",
+    "E<=E", "R<=E", "E<=R", "R<=R",
+    "E<>E", "R<>E", "E<>R", "R<>R", "A<>A",
+    "E==E", "R==E", "E==R", "R==R", "A==A"
+]
+
+typesR = ["",  "",  "",  "",  "",
+        "E", "R", "R", "R", "A",
+        "E", "R", "R", "R",
+        "E", "R", "R", "R",
+        "R", "R", "R", "R",
+                                          "E", "E", "R",
+                                          "L", "L", "L",
+                                          "L", "L", "L", "L",
+                                          "L", "L", "L", "L",
+                                          "L", "L", "L", "L",
+                                          "L", "L", "L", "L",
+                                          "L", "L", "L", "L", "L",
+                                          "L", "L", "L", "L", "L"
+]
+
+def searchType(c):
+    for i in range(55):
+        if convTypes[i] == c: return i
+    return -1
+
+class objPrgm():
+    def __init__(self, nom, cls, tip, dim1, dim2, apv) -> None:
+        self.nombre = nom
+        self.clase = cls
+        self.tipo = tip
+        self.dim1 = dim1
+        self.dim2 = dim2
+        self.apv = apv
+
+class TabSimb():
+    arreglo = []
+    def inserSimbolo(self, nom, cls, tip, dim1, dim2, apv):
+        obj = objPrgm(nom, cls, tip, dim1, dim2, apv)
+        self.arreglo.append( obj )
+
+    def buscaSimbolo(self, ide):
+        for x in self.arreglo:
+            if x.nom == ide: return x
+        return None
+    
+    def grabaTabla(self, archSal):
+        with open(archSal, 'r') as aSal:
+            if aSal == None: return 
+
+        with open(archSal, 'w') as aSal:
+            for x in tabSimb:
+                aSal.write(x.nom +',' + x.clas + ',' + x.tip + ',' + \
+                           x.dim1 + ','+ x.dim2 + ',#')
+            aSal.close()
+        return
+
+class codigo():
+    def __init__(self, mnem, dir1, dir2):
+        self.mnemo = mnem
+        self.dir1 = dir1
+        self.dir2 = dir2
+    
+class Programa():
+    cod = []
+    def insCodigo(self, mnemo, dir1, dir2):
+        global linCod
+        x = codigo(mnemo, dir1, dir2)
+        self.cod[linCod] = x
+        linCod = linCod + 1
+
+tabSimb = TabSimb()  
+
+prgm = Programa()
+
+pilaTipos = []
+
+## ##
+# INICIO Analizadores Semanticos
+## ##
+
+
 # Funcion de error
 def throwErr(errType, descript):
     global line, col
@@ -108,7 +207,7 @@ def colChar(x):
     # si hay un delimitador universal, solo no procesamos sin error
     if x in univDelimit: return 15
     # si el caracter no es ninguno de los aceptados, regresa error
-    throwErr('Error Lexico', 'Simbolo no valido en Alfabeto')
+    throwErr('Error Lexico ', x + ' Simbolo no valido en Alfabeto')
     return ERR
     
 # Funcion que regresa el token y el lexema // Analizador Lexico - Scanner
@@ -240,13 +339,23 @@ def termino():
         if lexema != ')':
             throwErr('Error de Sintaxis', 'Se esperaba ) y llego ' + lexema)
     elif token == 'Ide': # Si llega un identificador
+
+        nomIde = lexema
+
         token, lexema = scanner()
         if lexema == '[':
             token, lexema = scanner()
             expr()
             if lexema != ']':
                 throwErr('Error de Sintaxis', 'Se esperaba cerrar ] y llego ' + lexema)
-    # elif token == 'CtL' or token == 'CtA' or token == 'Dec' or token == 'Ent':
+        elif lexema == '(': pass
+
+        oIde = tabSimb.buscaSimbolo(nomIde)
+        if oIde != None:
+            pilaTipos.append(oIde.tip)
+        else:
+            throwErr('Error de Semantica', 'Identificador no declarado ' + nomIde)
+            pilaTipos('I')
     elif token in constTokens:
         const()
     if lexema != ')':
