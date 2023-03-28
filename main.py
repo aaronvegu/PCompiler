@@ -197,15 +197,15 @@ def imprime():
 
 def imprimenl():
     global token, lexema
+    token, lexema = scanner()
     # Verificamos que se haya abierto parentesis
-    if lexema != '(': throwErr('Error de sintaxis', 'Se esperaba ( y llego' + lexema)
+    if lexema != '(': throwErr('Error de sintaxis', 'Se esperaba ( y llego ' + lexema)
     # avanzamos
     token, lexema = scanner()
-    expressionGroup()
+    if lexema != ')': expressionGroup()
+    if lexema != ')': token, lexema = scanner()
     # Verificamos que se haya abierto parentesis
-    if lexema != ')': throwErr('Error de sintaxis', 'Se esperaba ) y llego' + lexema)
-    # avanzamos
-    token, lexema = scanner()
+    if lexema != ')': throwErr('Error de sintaxis', 'Se esperaba ) y llego ' + lexema)
 
 def desde(): pass
 def mientras(): pass
@@ -363,10 +363,13 @@ def expressionGroup():
             #if delim == ',':
                 #genCod(linea, 'OPR 0, 20')
 
+def asigLfunc(): pass
+
 # Comando
 def statement():
     global token, lexema
     # Dependiendo la palabra que recibamos, pasamos al sintactico de ese comando
+    if token == 'Ide': asigLfunc()
     if lexema == 'lee': leer()
     elif lexema == 'imprime': imprime()
     elif lexema == 'imprimenl': imprimenl()
@@ -455,7 +458,7 @@ def functions():
     #print('Programa entra a Functions')    
 
     # Si lexema no esta en los tipos del lenguaje, lanzar error
-    if not lexema in types:
+    if not(lexema in types):
         throwErr('Error sintactico', 'Se esperaba tipo ' + str(types))
     # Avanzamos en scanner (leemos)
     token, lexema = scanner()
@@ -468,7 +471,7 @@ def functions():
     # avanzamos
     token, lexema = scanner()
     # evaluamos apertura de parentesis
-    if lexema != "(": throwErr('Error de Sintaxis', 'Se esperaba \"(\" y llego ' + lexema)
+    if lexema != '(': throwErr('Error de Sintaxis', 'Se esperaba \"(\" y llego ' + lexema)
     # avanzamos
     token, lexema = scanner()
     # leemos parametros
