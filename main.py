@@ -335,7 +335,13 @@ def desde(): pass
 def mientras(): pass
 def si(): pass
 def repite(): pass
-def lmp(): pass # lmp = limpia pantalla
+
+# lmp = limpia pantalla
+def lmp(): 
+    global token, lexema
+    # avanzamos
+    token, lexema = scanner()
+
 def regresa(): pass
 
 ## INICIA REGLAS DEL EVALUADOR DE EXPRESIONES
