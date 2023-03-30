@@ -346,7 +346,15 @@ def desde():
         token, lexema = scanner()
     blockStatement()
     
-def mientras(): pass
+def mientras():
+    global token, lexema
+    token, lexema = scanner()
+    if lexema != 'que': throwErr('Error de sintaxis', 'Se esperaba la palabra que y llego ' + lexema)
+    token, lexema = scanner()
+    expr()
+    token, lexema = scanner()
+    if lexema == '{': blockStatement()
+
 def si(): pass
 def repite(): pass
 
