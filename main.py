@@ -348,6 +348,10 @@ def asigLfunc():
     global token, lexema
     # avanzamos
     token, lexema = scanner()
+    # Verificamos identificador
+    if token != 'Ide': throwErr('Error de Semantica', 'Se esperaba un Identificador y llego ' + token)
+    # avanzamos
+    token, lexema = scanner()
     # dimension (opcional)
     if lexema == '[':
             token, lexema = scanner()
