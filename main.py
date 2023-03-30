@@ -355,7 +355,20 @@ def mientras():
     token, lexema = scanner()
     if lexema == '{': blockStatement()
 
-def si(): pass
+def si():
+    global token, lexema
+    token, lexema = scanner()
+    expr()
+    if lexema != 'hacer': throwErr('Error de sintaxis', 'Se esperaba la palabra hacer y llego ' + lexema)
+    token, lexema = scanner()
+    if lexema == '{': 
+        blockStatement()
+        token, lexema = scanner()
+    if lexema != 'sino': throwErr('Error de sintaxis', 'Se esperaba la palabra sino y llego ' + lexema)
+    token, lexema = scanner()
+    if lexema == '{': 
+        blockStatement()
+
 def repite(): pass
 
 # lmp = limpia pantalla
