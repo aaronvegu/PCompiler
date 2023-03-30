@@ -82,19 +82,21 @@ convTypes = [
     "E==E", "R==E", "E==R", "R==R", "A==A"
 ]
 
-typesR = ["",  "",  "",  "",  "",
-        "E", "R", "R", "R", "A",
-        "E", "R", "R", "R",
-        "E", "R", "R", "R",
-        "R", "R", "R", "R",
-                                          "E", "E", "R",
-                                          "L", "L", "L",
-                                          "L", "L", "L", "L",
-                                          "L", "L", "L", "L",
-                                          "L", "L", "L", "L",
-                                          "L", "L", "L", "L",
-                                          "L", "L", "L", "L", "L",
-                                          "L", "L", "L", "L", "L"
+# Resultados de las conversiones
+typesR = [
+    "",  "",  "",  "",  "",
+    "E", "R", "R", "R", "A",
+    "E", "R", "R", "R",
+    "E", "R", "R", "R",
+    "R", "R", "R", "R",
+    "E", "E", "R",
+    "L", "L", "L",
+    "L", "L", "L", "L",
+    "L", "L", "L", "L",
+    "L", "L", "L", "L",
+    "L", "L", "L", "L",
+    "L", "L", "L", "L", "L",
+    "L", "L", "L", "L", "L"
 ]
 
 def searchType(c):
@@ -281,7 +283,29 @@ def scanner():
     return token, lexema
 
 ### Analizadores sintacticos de los comandos del lenguaje, en espaniol para evitar usar keywords de Python
-def leer(): pass
+def leer():
+    global token, lexema
+    # verificamos recibir keywork lee
+    if lexema != 'lee': throwErr('Error de sintaxis', 'Se esperaba palabra reservada lee y llego ' + lexema)
+    # avanzamos
+    token, lexema = scanner()
+    # Verificamos que se haya abierto parentesis
+    if lexema != '(': throwErr('Error de sintaxis', 'Se esperaba ( y llego' + lexema)
+    # avanzamos
+    token, lexema = scanner()
+    # verificamos recibir un identificador
+    if token != 'Ide': throwErr('Error de Sintaxis', 'Se esperaba cadena a imprimir y llego ' + lexema)
+    # avanzamos
+    token, lexema = scanner()
+    # dimension (opcional)
+    if lexema == '[':
+            token, lexema = scanner()
+            expr()
+            if lexema != ']':
+                throwErr('Error de Sintaxis', 'Se esperaba cerrar ] y llego ' + lexema)
+    # verificamos cierre de parentesis
+    if lexema != ')': throwErr('Error de sintaxis', 'Se esperaba cierre de parentesis y llego ' + lexema)
+
 def imprime():
     global token, lexema
     # Verificamos que se haya abierto parentesis
@@ -315,6 +339,8 @@ def si(): pass
 def repite(): pass
 def lmp(): pass # lmp = limpia pantalla
 def regresa(): pass
+
+## INICIA REGLAS DEL EVALUADOR DE EXPRESIONES
 
 ## Tecnica de implementacion: Descenso Recursivo Iterativo
 
@@ -425,6 +451,8 @@ def expr():
     while opr == 'o':
         opy()
         opr = lexema
+
+## TERMINA REGLAS DEL EVALUADOR DE EXPRESIONES
 
 def const():
     global token, lexema, prgmCode
