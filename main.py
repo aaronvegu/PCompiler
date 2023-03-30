@@ -369,7 +369,17 @@ def si():
     if lexema == '{': 
         blockStatement()
 
-def repite(): pass
+def repite():
+    global token, lexema
+    token, lexema = scanner()
+    if lexema == '{': 
+        blockStatement()
+        token, lexema = scanner()
+    if lexema != 'hasta': throwErr('Error de sintaxis', 'Se esperaba la palabra hasta y llego ' + lexema)
+    token, lexema = scanner()
+    if lexema != 'que': throwErr('Error de sintaxis', 'Se esperaba la palabra que y llego ' + lexema)
+    token, lexema = scanner()
+    expr()
 
 # lmp = limpia pantalla
 def lmp(): 
