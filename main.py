@@ -344,6 +344,22 @@ def lmp():
 
 def regresa(): pass
 
+def asigLfunc():
+    global token, lexema
+    # avanzamos
+    token, lexema = scanner()
+    # dimension (opcional)
+    if lexema == '[':
+            token, lexema = scanner()
+            expr()
+            if lexema != ']':
+                throwErr('Error de Sintaxis', 'Se esperaba cerrar ] y llego ' + lexema)
+    # verificamos asignacion
+    if lexema != '=': throwErr('Error de Sintaxis', 'Se esperaba = y llego ' + lexema)
+    # avanzamos
+    token, lexema = scanner()
+    expr()
+
 ## INICIA REGLAS DEL EVALUADOR DE EXPRESIONES
 
 ## Tecnica de implementacion: Descenso Recursivo Iterativo
@@ -520,8 +536,6 @@ def expressionGroup():
             delim = lexema
             #if delim == ',':
                 #genCod(linea, 'OPR 0, 20')
-
-def asigLfunc(): pass
 
 # Comando
 def statement():
