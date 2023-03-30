@@ -149,7 +149,7 @@ class Programa():
 
 tabSimb = TabSimb()  
 
-prgm = Programa()
+prgmCode = Programa()
 
 pilaTipos = []
 
@@ -288,14 +288,15 @@ def imprime():
     if lexema != '(': throwErr('Error de sintaxis', 'Se esperaba ( y llego' + lexema)
     # avanzamos
     token, lexema = scanner()
-    expressionGroup()
+    if lexema != '(': expressionGroup()
+    if lexema != '(': token, lexema = scanner()
     # Verificamos que se haya abierto parentesis
     if lexema != ')': throwErr('Error de sintaxis', 'Se esperaba ) y llego' + lexema)
-    # avanzamos
-    token, lexema = scanner()
+    # insertamos codigo en la maquina virtual
+    prgmCode.insCodigo('OPR', '0', '20')
 
 def imprimenl():
-    global token, lexema
+    global token, lexema, prgmCode
     token, lexema = scanner()
     # Verificamos que se haya abierto parentesis
     if lexema != '(': throwErr('Error de sintaxis', 'Se esperaba ( y llego ' + lexema)
@@ -305,6 +306,8 @@ def imprimenl():
     if lexema != ')': token, lexema = scanner()
     # Verificamos que se haya abierto parentesis
     if lexema != ')': throwErr('Error de sintaxis', 'Se esperaba ) y llego ' + lexema)
+    # insertamos codigo en la maquina virtual
+    prgmCode.insCodigo('OPR', '0', '21')
 
 def desde(): pass
 def mientras(): pass
@@ -424,9 +427,21 @@ def expr():
         opr = lexema
 
 def const():
-    global token, lexema
+    global token, lexema, prgmCode
+    # Si no es una constante definida
     if not(token in constTokens):
         throwErr('Error de Sintaxis', 'Se esperaba Cte y llego ' + lexema)
+    else: # Si recibimos un token definido en nuestras constantes
+        # clasificamos el tipo de constante
+        # Si es constante, entero o decimal, insertamos con LIT, valor, 0
+        if token == 'CtA' or token == 'Ent' or token == 'Dec':
+            prgmCode.insCodigo('LIT', lexema, '0')
+        # Si es una constante logico
+        if token == 'CtL':
+            # Si es verdadero: LIT, V, 0
+            if lexema == 'verdadero': prgmCode.insCodigo('LIT', 'V', 0)
+            # si es falso: LIT, F, 0
+            elif lexema == 'falso': prgmCode.insCodigo('LIT', 'F', 0)
 
 ## POR IMPLEMENTAR
 # Analizador sintactico de constantes y variables
@@ -462,11 +477,13 @@ def params():
 
 # Analizador de expresiones que queremos llamar con una funcion como imprime o imprimenl
 def expressionGroup():
-    global token, lexema
+    global token, lexema, prgmCode
     if lexema != ')':
         delim = ','
         while delim == ',':
-            if lexema == ',': token, lexema = scanner()
+            if lexema == ',':
+                token, lexema = scanner()
+                prgmCode.insCodigo('OPR', '0', '20')
             expr()
             delim = lexema
             #if delim == ',':
