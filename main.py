@@ -285,8 +285,6 @@ def scanner():
 ### Analizadores sintacticos de los comandos del lenguaje, en espaniol para evitar usar keywords de Python
 def leer():
     global token, lexema
-    # verificamos recibir keywork lee
-    if lexema != 'lee': throwErr('Error de sintaxis', 'Se esperaba palabra reservada lee y llego ' + lexema)
     # avanzamos
     token, lexema = scanner()
     # Verificamos que se haya abierto parentesis
