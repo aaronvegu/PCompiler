@@ -331,7 +331,21 @@ def imprimenl():
     # insertamos codigo en la maquina virtual
     prgmCode.insCodigo('OPR', '0', '21')
 
-def desde(): pass
+def desde():
+    global token, lexema
+    token, lexema = scanner()
+    asigLfunc()
+    token, lexema = scanner()
+    if lexema != 'hasta': throwErr('Error de sintaxis', 'Se esperaba palabra hasta y llego ' + lexema)
+    token, lexema = scanner()
+    expr()
+    token, lexema = scanner()
+    if lexema == 'incr':
+        token, lexema = scanner()
+        expr()
+        token, lexema = scanner()
+    blockStatement()
+    
 def mientras(): pass
 def si(): pass
 def repite(): pass
