@@ -63,8 +63,6 @@ inp = ''
 # INICIO Analizadores Semanticos
 ## ##
 
-linCod = 1
-
 # Conversiones de Tipos permitidas (Semantica)
 convTypes = [
     "E=E", "A=A", "R=R", "L=L", "R=E",
@@ -140,7 +138,7 @@ class codigo():
         self.mnemo = mnem
         self.dir1 = dir1
         self.dir2 = dir2
-    
+linCod = 1
 class Programa():
     cod = []
     def insCodigo(self, mnemo, dir1, dir2):
@@ -315,7 +313,7 @@ def imprime():
     # Verificamos que se haya abierto parentesis
     if lexema != ')': throwErr('Error de sintaxis', 'Se esperaba ) y llego' + lexema)
     # insertamos codigo en la maquina virtual
-    prgmCode.insCodigo('OPR', '0', '20')
+    # prgmCode.insCodigo('OPR', '0', '20')
 
 def imprimenl():
     global token, lexema, prgmCode
@@ -329,22 +327,22 @@ def imprimenl():
     # Verificamos que se haya abierto parentesis
     if lexema != ')': throwErr('Error de sintaxis', 'Se esperaba ) y llego ' + lexema)
     # insertamos codigo en la maquina virtual
-    prgmCode.insCodigo('OPR', '0', '21')
+    # prgmCode.insCodigo('OPR', '0', '21')
 
 def desde():
     global token, lexema
     token, lexema = scanner()
     asigLfunc()
-    token, lexema = scanner()
+    # token, lexema = scanner()
     if lexema != 'hasta': throwErr('Error de sintaxis', 'Se esperaba palabra hasta y llego ' + lexema)
-    token, lexema = scanner()
+    # token, lexema = scanner()
     expr()
-    token, lexema = scanner()
+    # token, lexema = scanner()
     if lexema == 'incr':
         token, lexema = scanner()
         expr()
         token, lexema = scanner()
-    blockStatement()
+    blkcmd()
     
 def mientras():
     global token, lexema
@@ -353,7 +351,7 @@ def mientras():
     token, lexema = scanner()
     expr()
     token, lexema = scanner()
-    if lexema == '{': blockStatement()
+    if lexema == '{': blkcmd()
 
 def si():
     global token, lexema
@@ -362,18 +360,18 @@ def si():
     if lexema != 'hacer': throwErr('Error de sintaxis', 'Se esperaba la palabra hacer y llego ' + lexema)
     token, lexema = scanner()
     if lexema == '{': 
-        blockStatement()
+        blkcmd()
         token, lexema = scanner()
     if lexema != 'sino': throwErr('Error de sintaxis', 'Se esperaba la palabra sino y llego ' + lexema)
     token, lexema = scanner()
     if lexema == '{': 
-        blockStatement()
+        blkcmd()
 
 def repite():
     global token, lexema
     token, lexema = scanner()
     if lexema == '{': 
-        blockStatement()
+        blkcmd()
         token, lexema = scanner()
     if lexema != 'hasta': throwErr('Error de sintaxis', 'Se esperaba la palabra hasta y llego ' + lexema)
     token, lexema = scanner()
@@ -392,7 +390,7 @@ def regresa(): pass
 def asigLfunc():
     global token, lexema
     # avanzamos
-    token, lexema = scanner()
+    # token, lexema = scanner()
     # Verificamos identificador
     if token != 'Ide': throwErr('Error de Semantica', 'Se esperaba un Identificador y llego ' + token)
     # avanzamos
@@ -448,12 +446,12 @@ def termino():
                 throwErr('Error de Sintaxis', 'Se esperaba cerrar ] y llego ' + lexema)
         elif lexema == '(': pass
 
-        oIde = tabSimb.buscaSimbolo(nomIde)
-        if oIde != None:
-            pilaTipos.append(oIde.tip)
-        else:
-            throwErr('Error de Semantica', 'Identificador no declarado ' + nomIde)
-            pilaTipos('I')
+        # oIde = tabSimb.buscaSimbolo(nomIde)
+        # if oIde != None:
+        #     pilaTipos.append(oIde.tip)
+        # else:
+        #     throwErr('Error de Semantica', 'Identificador no declarado ' + nomIde)
+        #     pilaTipos('I')
     elif token in constTokens:
         const()
     if lexema != ')':
@@ -528,17 +526,17 @@ def const():
     # Si no es una constante definida
     if not(token in constTokens):
         throwErr('Error de Sintaxis', 'Se esperaba Cte y llego ' + lexema)
-    else: # Si recibimos un token definido en nuestras constantes
-        # clasificamos el tipo de constante
-        # Si es constante, entero o decimal, insertamos con LIT, valor, 0
-        if token == 'CtA' or token == 'Ent' or token == 'Dec':
-            prgmCode.insCodigo('LIT', lexema, '0')
-        # Si es una constante logico
-        if token == 'CtL':
-            # Si es verdadero: LIT, V, 0
-            if lexema == 'verdadero': prgmCode.insCodigo('LIT', 'V', 0)
-            # si es falso: LIT, F, 0
-            elif lexema == 'falso': prgmCode.insCodigo('LIT', 'F', 0)
+    # else: # Si recibimos un token definido en nuestras constantes
+    #     # clasificamos el tipo de constante
+    #     # Si es constante, entero o decimal, insertamos con LIT, valor, 0
+    #     if token == 'CtA' or token == 'Ent' or token == 'Dec':
+    #         prgmCode.insCodigo('LIT', lexema, '0')
+    #     # Si es una constante logico
+    #     if token == 'CtL':
+    #         # Si es verdadero: LIT, V, 0
+    #         if lexema == 'verdadero': prgmCode.insCodigo('LIT', 'V', 0)
+    #         # si es falso: LIT, F, 0
+    #         elif lexema == 'falso': prgmCode.insCodigo('LIT', 'F', 0)
 
 ## POR IMPLEMENTAR
 # Analizador sintactico de constantes y variables
@@ -580,14 +578,14 @@ def expressionGroup():
         while delim == ',':
             if lexema == ',':
                 token, lexema = scanner()
-                prgmCode.insCodigo('OPR', '0', '20')
+                # prgmCode.insCodigo('OPR', '0', '20')
             expr()
             delim = lexema
             #if delim == ',':
                 #genCod(linea, 'OPR 0, 20')
 
 # Comando
-def statement():
+def comando():
     global token, lexema
     # Dependiendo la palabra que recibamos, pasamos al sintactico de ese comando
     if token == 'Ide': asigLfunc()
@@ -605,24 +603,24 @@ def statement():
     token, lexema = scanner()
 
 # Analizador sintactico del grupo de comandos
-def blockStatement():
+def blkcmd():
     global token, lexema
     token, lexema = scanner()
     if lexema != ';' and lexema != '{': 
-        statement()
+        comando()
         token, lexema = scanner()
         if lexema != ';': throwErr('Error de Sintaxis', 'se esperaba ; y llego ' + lexema)
     elif lexema == '{':
-        instructions()
+        estatutos()
         if lexema != '}': throwErr('Error de Sintaxis', 'se esperaba cerrar block \"}\" y llego ' + lexema)
 
 # Analizador sintactico del grupo de instrucciones de la funcion
-def instructions():
+def estatutos():
     global token, lexema
     cbk = '{'
     while cbk != '}':
         # Si no tenemos punto y coma, leemos comando
-        if lexema != ';': statement()
+        if lexema != ';': comando()
         # Si no hay ;, aventamos error
         if lexema != ';': throwErr('Error de Sintaxis', 'Se esperaba ; y llego ' + lexema)
         # Siempre debe haber un ; despues de un comando, y avanzamos
@@ -631,14 +629,14 @@ def instructions():
         cbk = lexema
 
 # Analizador sintactico del bloque de instrucciones de funcion
-def functBlock():
+def blkFunc(): # Requiere uso obligatorio de llaves
     global token, lexema
     # Bloque de instrucciones debe iniciar con llave
     if lexema != '{': throwErr('Error de Sintaxis', 'Se esperaba llave de apertura \"{\"')
     # avanzamos
     token, lexema = scanner()
     # esperamos instrucciones de la funcion, y leemos de no encontrar llave de cerradura
-    if lexema != '}': instructions()
+    if lexema != '}': estatutos()
     # debemos recibir cerradura de la funcion
     if lexema != '}': throwErr('Error de Sintaxis', 'Se esperaba llave de cerradura \"}\"')
 
@@ -668,15 +666,13 @@ def VarFuncHeader():
     # avanzamos
     token, lexema = scanner()
     # Si llega parentesis de apertura, procesamos funcion
-    if lexema == "(": functions() 
+    if lexema == "(": funcs() 
     else: constVars() # Sino, es constante o variable
 
 
 # Analizador sintactico de las funciones
-def functions():
-    global inp, idx, token, lexema, types, mainFlag
-
-    #print('Programa entra a Functions')    
+def funcs():
+    global inp, idx, token, lexema, types, mainFlag 
 
     # Si lexema no esta en los tipos del lenguaje, lanzar error
     if not(lexema in types):
@@ -702,13 +698,13 @@ def functions():
     # avanzamos
     token, lexema = scanner()
     # esperamos el bloque de instrucciones de la funcion
-    functBlock()
+    blkFunc()
 
 # Analizador sintantico de la estructura principal del programa
 def prgm():
     while len(inp) > 0 and idx < len(inp):
         constVars()
-        functions() # Para saber si es una constante/variable o funcion
+        funcs() # Para saber si es una constante/variable o funcion
 
 # Analizador sintactico principal (Parser)
 def parser():
