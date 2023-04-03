@@ -337,11 +337,11 @@ def desde():
     if lexema != 'hasta': throwErr('Error de sintaxis', 'Se esperaba palabra hasta y llego ' + lexema)
     # token, lexema = scanner()
     expr()
-    # token, lexema = scanner()
+    token, lexema = scanner()
     if lexema == 'incr':
         token, lexema = scanner()
         expr()
-        token, lexema = scanner()
+        # token, lexema = scanner()
     blkcmd()
     
 def mientras():
@@ -605,7 +605,7 @@ def comando():
 # Analizador sintactico del grupo de comandos
 def blkcmd():
     global token, lexema
-    token, lexema = scanner()
+    # token, lexema = scanner()
     if lexema != ';' and lexema != '{': 
         comando()
         token, lexema = scanner()
